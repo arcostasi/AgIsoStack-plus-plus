@@ -37,6 +37,9 @@ bool Seeder::initialize(const std::string &interfaceName)
 #elif defined(ISOBUS_WINDOWSPCANBASIC_AVAILABLE)
 	canDriver = std::make_shared<isobus::PCANBasicWindowsPlugin>(channel);
 #endif
+#elif defined(ISOBUS_WINDOWSCANLIB_AVAILABLE)
+	int channel = interfaceName.empty() ? 0 : std::stoi(interfaceName);
+	canDriver = std::make_shared<isobus::CANLibWindowsPlugin>(channel);
 #endif
 	if (nullptr == canDriver)
 	{

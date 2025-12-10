@@ -1,0 +1,1 @@
+cmake -S . -B build -DCAN_DRIVER=WindowsCANlib -DBUILD_EXAMPLES=ON -DBUILD_TESTING=ON
