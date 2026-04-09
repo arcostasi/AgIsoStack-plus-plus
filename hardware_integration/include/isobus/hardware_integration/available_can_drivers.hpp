@@ -52,8 +52,6 @@
 
 #ifdef ISOBUS_WINDOWSCANLIB_AVAILABLE
 #include "isobus/hardware_integration/canlib_windows_plugin.hpp"
-#ifdef ISOBUS_SILKIT_AVAILABLE
-#include "isobus/hardware_integration/sil_kit_plugin.hpp"
 #endif
 
 #ifdef ISOBUS_SILKIT_AVAILABLE
