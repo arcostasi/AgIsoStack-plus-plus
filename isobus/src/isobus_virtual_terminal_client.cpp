@@ -419,7 +419,7 @@ namespace isobus
 		return queue_command(buffer, true);
 	}
 
-	bool VirtualTerminalClient::send_change_string_value(std::uint16_t objectID, uint16_t stringLength, const char *value)
+	bool VirtualTerminalClient::send_change_string_value(std::uint16_t objectID, std::uint16_t stringLength, const char *value)
 	{
 		bool retVal = false;
 
@@ -1266,12 +1266,12 @@ namespace isobus
 
 	void VirtualTerminalClient::set_object_pool_scaling(std::uint8_t poolIndex,
 	                                                    std::uint32_t originalDataMaskDimensions_px,
-	                                                    std::uint32_t originalSoftKyeDesignatorHeight_px)
+	                                                    std::uint32_t originalSoftKeyDesignatorHeight_px)
 	{
 		// You have to call set_object_pool or register_object_pool_data_chunk_callback before calling this function
 		assert(poolIndex < objectPools.size());
 		objectPools[poolIndex].autoScaleDataMaskOriginalDimension = originalDataMaskDimensions_px;
-		objectPools[poolIndex].autoScaleSoftKeyDesignatorOriginalHeight = originalSoftKyeDesignatorHeight_px;
+		objectPools[poolIndex].autoScaleSoftKeyDesignatorOriginalHeight = originalSoftKeyDesignatorHeight_px;
 	}
 
 	void VirtualTerminalClient::register_object_pool_data_chunk_callback(std::uint8_t poolIndex, std::uint32_t poolTotalSize, DataChunkCallback value, std::string version)
@@ -2314,15 +2314,18 @@ namespace isobus
 								0xFF,
 								0xFF,
 							};
-							if (parentVT->is_vt_version_supported(VTVersion::Version6))
-							{
-								// VT version is 6 or later
-								buffer[5] = static_cast<std::uint8_t>((transactionNumber << 4) | touchState);
-							}
+
 							if (parentVT->is_vt_version_supported(VTVersion::Version4))
 							{
 								// VT version is either 4 or 5
 								buffer[5] = touchState;
+							}
+							if (parentVT->is_vt_version_supported(VTVersion::Version6))
+							{
+								// VT version is 6 or later
+								buffer[5] = static_cast<std::uint8_t>((transactionNumber << 4) | touchState);
+								buffer[6] = static_cast<std::uint8_t>(parentMaskObjectID);
+								buffer[7] = static_cast<std::uint8_t>(parentMaskObjectID >> 8);
 							}
 							parentVT->send_message_to_vt(buffer.data(), buffer.size());
 						}
@@ -2412,7 +2415,7 @@ namespace isobus
 							if (parentVT->is_vt_version_supported(VTVersion::Version6))
 							{
 								// VT version is 6 or later
-								transactionNumber = message.get_uint8_at(7) >> 4;
+								transactionNumber = message.get_uint8_at(3) >> 4;
 							}
 
 							parentVT->changeNumericValueEventDispatcher.invoke({ parentVT, value, objectID });
@@ -4000,7 +4003,7 @@ namespace isobus
 
 			case VirtualTerminalObjectType::OutputString:
 			{
-				const std::uint32_t sizeOfValue = (static_cast<uint16_t>(buffer[14]) | static_cast<uint16_t>(buffer[15] << 8));
+				const std::uint32_t sizeOfValue = (static_cast<std::uint16_t>(buffer[14]) | static_cast<std::uint16_t>(buffer[15] << 8));
 				const std::uint32_t sizeOfMacros = (buffer[16 + sizeOfValue] * 2);
 				retVal += (sizeOfMacros + sizeOfValue);
 			}
@@ -4095,7 +4098,7 @@ namespace isobus
 
 			case VirtualTerminalObjectType::StringVariable:
 			{
-				const std::uint32_t sizeOfValue = (static_cast<uint16_t>(buffer[3]) | static_cast<uint16_t>(buffer[4]) << 8);
+				const std::uint32_t sizeOfValue = (static_cast<std::uint16_t>(buffer[3]) | static_cast<std::uint16_t>(buffer[4]) << 8);
 				retVal += sizeOfValue;
 			}
 			break;
@@ -4157,7 +4160,7 @@ namespace isobus
 
 			case VirtualTerminalObjectType::ObjectLabelRefrenceList:
 			{
-				const std::uint32_t sizeOfLabeledObjects = ((static_cast<uint16_t>(buffer[4]) | static_cast<uint16_t>(buffer[5]) << 8) * 7);
+				const std::uint32_t sizeOfLabeledObjects = ((static_cast<std::uint16_t>(buffer[4]) | static_cast<std::uint16_t>(buffer[5]) << 8) * 7);
 				retVal += sizeOfLabeledObjects;
 			}
 			break;
