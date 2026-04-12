@@ -52,6 +52,8 @@ The library is is written in modern C++11 and uses the STL whenever possible. It
 
 Check out the [tutorial website](https://agisostack-plus-plus.readthedocs.io/en/latest/) for information on ISOBUS basics, how to download this library, and how to use it. The tutorials contain in-depth examples and explanations to help get your ISOBUS or J1939 project going quickly.
 
+If you are maintaining this repository as a fork with local hardware support, see [FORK_MAINTENANCE.md](FORK_MAINTENANCE.md) for the branch and sync workflow.
+
 ### Use of our SAE/ISOBUS Manufacturer Code
 
 If you are integrating with our library to create an ISO11783 or J1939 application and are not selling your software or device containing that software for-profit, then you are welcome to use our manufacturer number in your application.
