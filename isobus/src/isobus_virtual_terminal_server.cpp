@@ -42,6 +42,7 @@ namespace isobus
 			CANNetworkManager::CANNetwork.add_any_control_function_parameter_group_number_callback(static_cast<std::uint32_t>(CANLibParameterGroupNumber::ECUtoVirtualTerminal),
 			                                                                                       process_rx_message,
 			                                                                                       this);
+			initialized = true;
 		}
 	}
 
