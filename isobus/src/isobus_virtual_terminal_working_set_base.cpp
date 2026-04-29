@@ -2336,7 +2336,12 @@ namespace isobus
 
 	std::shared_ptr<VTObject> VirtualTerminalWorkingSetBase::get_object_by_id(std::uint16_t objectID)
 	{
-		return vtObjectTree[objectID];
+		auto result = vtObjectTree.find(objectID);
+		if (result != vtObjectTree.end())
+		{
+			return result->second;
+		}
+		return nullptr;
 	}
 
 	std::shared_ptr<VTObject> VirtualTerminalWorkingSetBase::get_working_set_object()
@@ -2346,17 +2351,8 @@ namespace isobus
 
 	bool VirtualTerminalWorkingSetBase::get_object_id_exists(std::uint16_t objectID)
 	{
-		bool retVal;
-
-		if (vtObjectTree.find(objectID) == vtObjectTree.end())
-		{
-			retVal = false;
-		}
-		else
-		{
-			retVal = (nullptr != vtObjectTree[objectID]);
-		}
-		return retVal;
+		auto result = vtObjectTree.find(objectID);
+		return (result != vtObjectTree.end()) && (nullptr != result->second);
 	}
 
 	EventID VirtualTerminalWorkingSetBase::get_event_from_byte(std::uint8_t eventByte)

@@ -42,6 +42,7 @@ namespace isobus
 			CANNetworkManager::CANNetwork.add_any_control_function_parameter_group_number_callback(static_cast<std::uint32_t>(CANLibParameterGroupNumber::ECUtoVirtualTerminal),
 			                                                                                       process_rx_message,
 			                                                                                       this);
+			initialized = true;
 		}
 	}
 
@@ -520,6 +521,7 @@ namespace isobus
 					std::ostringstream nameString;
 					nameString << std::hex << std::setfill('0') << std::setw(16) << managedWorkingSet->get_control_function()->get_NAME().get_full_name();
 					std::vector<std::uint8_t> versionLabel;
+					std::vector<std::uint8_t> combinedPoolData;
 					bool allPoolsSaved = true;
 					versionLabel.reserve(VERSION_LABEL_LENGTH);
 
@@ -530,18 +532,22 @@ namespace isobus
 
 					for (std::size_t i = 0; i < managedWorkingSet->get_number_iop_files(); i++)
 					{
-						bool didSave = save_version(managedWorkingSet->get_iop_raw_data(i), versionLabel, message.get_source_control_function()->get_NAME());
+						const auto &poolChunk = managedWorkingSet->get_iop_raw_data(i);
+						combinedPoolData.insert(combinedPoolData.end(), poolChunk.begin(), poolChunk.end());
+					}
 
-						if (didSave)
-						{
-							LOG_INFO("[VT Server]: Object pool " + isobus::to_string(i) + " for NAME " + nameString.str() + " was stored.");
-						}
-						else
-						{
-							LOG_ERROR("[VT Server]: Object pool " + isobus::to_string(i) + " for NAME " + nameString.str() + " could not be stored.");
-							allPoolsSaved = false;
-							break;
-						}
+					bool didSave = save_version(combinedPoolData, versionLabel, message.get_source_control_function()->get_NAME());
+
+					if (didSave)
+					{
+						LOG_INFO("[VT Server]: Combined object pool for NAME " + nameString.str() + " was stored. Components: " +
+						         isobus::to_string(static_cast<int>(managedWorkingSet->get_number_iop_files())) +
+						         ", bytes: " + isobus::to_string(static_cast<int>(combinedPoolData.size())));
+					}
+					else
+					{
+						LOG_ERROR("[VT Server]: Combined object pool for NAME " + nameString.str() + " could not be stored.");
+						allPoolsSaved = false;
 					}
 
 					std::array<std::uint8_t, CAN_DATA_LENGTH> buffer = { 0 };
